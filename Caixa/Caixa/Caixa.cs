@@ -26,5 +26,22 @@ namespace Caixa
         {
 
         }
+
+        private void definePreco_Click(object sender, EventArgs e)
+        {
+            if (precoGasolina.Text.Length > 0)
+            {
+                //using (var context = new SchoolDBEntities())
+                using (var context = new productionEntities)
+                {
+                    Preco novoPreco = new Preco();
+                    novoPreco.valor = Convert.ToDecimal(precoGasolina.Text);
+                    novoPreco.data = (new DateTime()).ToShortDateString();
+
+                    context.SaveChanges();
+                }
+                
+            }
+        }
     }
 }
