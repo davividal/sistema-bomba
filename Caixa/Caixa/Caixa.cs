@@ -125,17 +125,17 @@ namespace Caixa
 
         private void bomba1Paga_Click(object sender, EventArgs e)
         {
+            valorAbastecidoBomba1.Text = "10";
             if (valorAbastecidoBomba1.Text.Length > 0)
             {
                 using (var context = new BombasContext())
                 {
-                    Preco preco = new Preco();
+                    
                     Venda qtdeLitros = new Venda();
                     DateTime data = DateTime.Now;
                     qtdeLitros.litros = Convert.ToDecimal(valorAbastecidoBomba1.Text);
-                    preco.data = data.ToShortDateString();
 
-                    context.Precos.Find(precoGasolina);
+                    Preco preco = context.Precos.Where(p => p.data == data.ToShortDateString()).FirstOrDefault();
                         //.Add(qtdeLitros);
                     
                     Bomba bomba = context.Bombas.Find(1);
