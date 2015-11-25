@@ -27,17 +27,7 @@ namespace Caixa
             InitializeComponent();
             ipAddress = ipHostInfo.AddressList[0];
             bomba1EndPoint = new IPEndPoint(ipAddress, 11000);
-            bomba2EndPoint = new IPEndPoint(ipAddress, 12000);
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
+            bomba2EndPoint = new IPEndPoint(ipAddress, 11001);
         }
 
         private void definePreco_Click(object sender, EventArgs e)
@@ -61,7 +51,12 @@ namespace Caixa
 
         private void Caixa_Load(object sender, EventArgs e)
         {
+            valorAbastecidoBomba1.Text = "";
+            valorAbastecidoBomba2.Text = "";
+            fechamento.Text = "Sem informações suficientes";
+
             bomba1.RunWorkerAsync();
+            bomba2.RunWorkerAsync();
         }
 
         private void bomba1_DoWork(object sender, DoWorkEventArgs e)
@@ -74,6 +69,26 @@ namespace Caixa
 
             listener.Bind(bomba1EndPoint);
             listener.Listen(1);
+
+            while (true)
+            {
+                // Set the event to nonsignaled state.
+                allDone.Reset();
+
+                // Create the state object.
+                StateObject state = new StateObject();
+                state.bomba = bomba1;
+                state.workSocket = listener;
+
+                // Start an asynchronous socket to listen for connections.
+                listener.BeginAccept(
+                    new AsyncCallback(AcceptCallback),
+                    state
+                );
+
+                // Wait until a connection is made before continuing.
+                allDone.WaitOne();
+            }
         }
 
         private void bomba2_DoWork(object sender, DoWorkEventArgs e)
@@ -86,15 +101,123 @@ namespace Caixa
 
             listener.Bind(bomba2EndPoint);
             listener.Listen(1);
-            Socket handler = listener.Accept();
-            handler.BeginReceive(
-                state.buffer, 0, StateObject.BufferSize, 0,
-            new AsyncCallback(ReadCallback), state);
+
+            while (true)
+            {
+                // Set the event to nonsignaled state.
+                allDone.Reset();
+
+                // Create the state object.
+                StateObject state = new StateObject();
+                state.bomba = bomba1;
+                state.workSocket = listener;
+
+                // Start an asynchronous socket to listen for connections.
+                listener.BeginAccept(
+                    new AsyncCallback(AcceptCallback),
+                    state
+                );
+
+                // Wait until a connection is made before continuing.
+                allDone.WaitOne();
+            }
         }
 
         private void bomba1Paga_Click(object sender, EventArgs e)
         {
 
+        }
+
+        public void AcceptCallback(IAsyncResult ar)
+        {
+            // Signal the main thread to continue.
+            allDone.Set();
+
+            StateObject state = (StateObject)ar.AsyncState;
+
+            // Get the socket that handles the client request.
+            Socket listener = state.handler;
+            Socket handler = listener.EndAccept(ar);
+            state.workSocket = handler;
+
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReadCallback), state);
+        }
+
+        public void ReadCallback(IAsyncResult ar)
+        {
+            String content = String.Empty;
+
+            // Retrieve the state object and the handler socket
+            // from the asynchronous state object.
+            StateObject state = (StateObject)ar.AsyncState;
+            Socket handler = state.workSocket;
+
+            // Read data from the client socket. 
+            int bytesRead = handler.EndReceive(ar);
+
+            if (bytesRead > 0)
+            {
+                // There  might be more data, so store the data received so far.
+                state.sb.Append(Encoding.ASCII.GetString(
+                    state.buffer, 0, bytesRead));
+
+                // Check for end-of-file tag. If it is not there, read 
+                // more data.
+                content = state.sb.ToString();
+                if (content.IndexOf("<EOF>") > -1)
+                {
+                    // All the data has been read from the 
+                    // client. Display it on the console.
+                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+                        content.Length, content);
+                    // Echo the data back to the client.
+                    state.bomba.ReportProgress(0, state);
+                }
+                else
+                {
+                    // Not all data received. Get more.
+                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReadCallback), state);
+                }
+            }
+        }
+
+        private void Send(Socket handler, String data)
+        {
+            // Convert the string data to byte data using ASCII encoding.
+            byte[] byteData = Encoding.ASCII.GetBytes(data);
+
+            // Begin sending the data to the remote device.
+            handler.BeginSend(byteData, 0, byteData.Length, 0,
+                new AsyncCallback(SendCallback), handler);
+        }
+
+        private static void SendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.
+                Socket handler = (Socket)ar.AsyncState;
+
+                // Complete sending the data to the remote device.
+                int bytesSent = handler.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Close();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private void bomba1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            StateObject so = (StateObject)e.UserState;
+            valorAbastecidoBomba1.Text = so.sb.ToString();
         }
     }
 }

@@ -195,7 +195,6 @@
             this.label2.Size = new System.Drawing.Size(178, 29);
             this.label2.TabIndex = 0;
             this.label2.Text = "Abastecimento:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // tabBomba2
             // 
@@ -251,6 +250,7 @@
             // bomba1
             // 
             this.bomba1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba1_DoWork);
+            this.bomba1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bomba1_ProgressChanged);
             // 
             // bomba2
             // 
