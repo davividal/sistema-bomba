@@ -136,15 +136,17 @@ namespace Caixa
                     qtdeLitros.litros = Convert.ToDecimal(valorAbastecidoBomba1.Text);
                     preco.data = data.ToString(format);
 
-                    context.Vendas.Add(qtdeLitros);
-
-                    Bomba bomba = context.Bomba
-                        .Where(1);
+                    context.Precos.Find(precoGasolina);
+                        //.Add(qtdeLitros);
+                    
+                    Bomba bomba = context.Bombas
+                        .Find(preco.data);
 
                     Venda venda = new Venda();
                     venda.bomba = bomba;
                     venda.preco = preco;
 
+                    context.Precos.Add(preco);
                     context.Vendas.Add(venda);
 
                     context.SaveChanges();
