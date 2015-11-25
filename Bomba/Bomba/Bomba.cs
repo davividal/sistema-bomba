@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Bomba
 {
-    public partial class Form1 : Form
+    public partial class Bomba : Form
     {
-        public Form1()
+        public Bomba()
         {
             InitializeComponent();
         }

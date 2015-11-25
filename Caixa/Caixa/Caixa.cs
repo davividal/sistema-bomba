@@ -138,8 +138,7 @@ namespace Caixa
 
                     context.Vendas.Add(qtdeLitros);
 
-                    Bomba bomba = context.Bomba
-                        .Where(1);
+                    Bomba bomba = context.Bombas.Find(1);
 
                     Venda venda = new Venda();
                     venda.bomba = bomba;
