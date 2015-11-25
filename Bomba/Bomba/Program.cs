@@ -16,7 +16,7 @@ namespace Bomba
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Bomba());
+            Application.Run(new Form1());
         }
     }
 }
