@@ -29,13 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.definePreco = new System.Windows.Forms.Button();
@@ -51,18 +47,17 @@
             this.bomba2Paga = new System.Windows.Forms.Button();
             this.valorAbastecidoBomba2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.toolTipFechamento = new System.Windows.Forms.ToolTip(this.components);
-            this.productionDataSet = new Caixa.productionDataSet();
+            this.bomba1 = new System.ComponentModel.BackgroundWorker();
+            this.bomba2 = new System.ComponentModel.BackgroundWorker();
+            this.fechamento = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.tabBomba1.SuspendLayout();
             this.tabBomba2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.productionDataSet)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -90,7 +85,8 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.chart1);
+            this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.fechamento);
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Location = new System.Drawing.Point(6, 91);
             this.groupBox2.Name = "groupBox2";
@@ -98,23 +94,6 @@
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Fechamento";
-            // 
-            // chart1
-            // 
-            chartArea3.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
-            this.chart1.Location = new System.Drawing.Point(222, 19);
-            this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(316, 183);
-            this.chart1.TabIndex = 4;
-            this.chart1.Text = "chart1";
             // 
             // button1
             // 
@@ -195,6 +174,7 @@
             this.bomba1Paga.TabIndex = 2;
             this.bomba1Paga.Text = "Pago";
             this.bomba1Paga.UseVisualStyleBackColor = true;
+            this.bomba1Paga.Click += new System.EventHandler(this.bomba1Paga_Click);
             // 
             // valorAbastecidoBomba1
             // 
@@ -268,15 +248,31 @@
             this.label4.TabIndex = 4;
             this.label4.Text = "Abastecimento:";
             // 
-            // bindingSource1
+            // bomba1
             // 
-            this.bindingSource1.DataSource = this.productionDataSet;
-            this.bindingSource1.Position = 0;
+            this.bomba1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba1_DoWork);
             // 
-            // productionDataSet
+            // bomba2
             // 
-            this.productionDataSet.DataSetName = "productionDataSet";
-            this.productionDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            this.bomba2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba2_DoWork);
+            // 
+            // fechamento
+            // 
+            this.fechamento.AutoSize = true;
+            this.fechamento.Location = new System.Drawing.Point(351, 78);
+            this.fechamento.Name = "fechamento";
+            this.fechamento.Size = new System.Drawing.Size(35, 13);
+            this.fechamento.TabIndex = 3;
+            this.fechamento.Text = "label3";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(192, 78);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(145, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Valor vendido no dia anterior:";
             // 
             // Caixa
             // 
@@ -286,18 +282,17 @@
             this.Controls.Add(this.tabControl1);
             this.Name = "Caixa";
             this.Text = "Caixa";
+            this.Load += new System.EventHandler(this.Caixa_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabBomba1.ResumeLayout(false);
             this.tabBomba1.PerformLayout();
             this.tabBomba2.ResumeLayout(false);
             this.tabBomba2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.productionDataSet)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -320,12 +315,13 @@
         private System.Windows.Forms.Button bomba2Paga;
         private System.Windows.Forms.Label valorAbastecidoBomba2;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.ToolTip toolTipFechamento;
-        private productionDataSet productionDataSet;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label fechamento;
+        private System.ComponentModel.BackgroundWorker bomba1;
+        private System.ComponentModel.BackgroundWorker bomba2;
     }
 }
 
