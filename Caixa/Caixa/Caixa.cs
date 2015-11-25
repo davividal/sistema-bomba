@@ -94,7 +94,31 @@ namespace Caixa
 
         private void bomba1Paga_Click(object sender, EventArgs e)
         {
+            if (valorAbastecidoBomba1.Text.Length > 0)
+            {
+                using (var context = new BombasContext())
+                {
+                    Preco preco = new Preco();
+                    Venda qtdeLitros = new Venda();
+                    DateTime data = DateTime.Now;
+                    string format = "d/m/yyyy";
+                    qtdeLitros.litros = Convert.ToDecimal(valorAbastecidoBomba1.Text);
+                    preco.data = data.ToString(format);
 
+                    context.Vendas.Add(qtdeLitros);
+
+                    Bomba bomba = context.Bomba
+                        .Where(1);
+
+                    Venda venda = new Venda();
+                    venda.bomba = bomba;
+                    venda.preco = preco;
+
+                    context.Vendas.Add(venda);
+
+                    context.SaveChanges();
+                }
+            }
         }
     }
 }
