@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caixa", "Caixa\Caixa.csproj", "{E15DC37A-FF4B-4BF2-8098-53CF1397C099}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bomba", "..\Bomba\Bomba\Bomba.csproj", "{6827CCAD-E200-4ABF-83DA-F891C4662ED4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E15DC37A-FF4B-4BF2-8098-53CF1397C099}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E15DC37A-FF4B-4BF2-8098-53CF1397C099}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E15DC37A-FF4B-4BF2-8098-53CF1397C099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6827CCAD-E200-4ABF-83DA-F891C4662ED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6827CCAD-E200-4ABF-83DA-F891C4662ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6827CCAD-E200-4ABF-83DA-F891C4662ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6827CCAD-E200-4ABF-83DA-F891C4662ED4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
