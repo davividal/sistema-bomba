@@ -132,15 +132,13 @@ namespace Caixa
                     Preco preco = new Preco();
                     Venda qtdeLitros = new Venda();
                     DateTime data = DateTime.Now;
-                    string format = "d/m/yyyy";
                     qtdeLitros.litros = Convert.ToDecimal(valorAbastecidoBomba1.Text);
-                    preco.data = data.ToString(format);
+                    preco.data = data.ToShortDateString();
 
                     context.Precos.Find(precoGasolina);
                         //.Add(qtdeLitros);
                     
-                    Bomba bomba = context.Bombas
-                        .Find(preco.data);
+                    Bomba bomba = context.Bombas.Find(1);
 
                     Venda venda = new Venda();
                     venda.bomba = bomba;
