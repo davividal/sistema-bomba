@@ -243,5 +243,25 @@ namespace Caixa
             StateObject so = (StateObject)e.UserState;
             valorAbastecidoBomba1.Text = so.sb.ToString();
         }
+
+        private Decimal valor(String data)
+        {
+            Decimal total, valor;
+            String tipo;
+            tipo = data.Split('|')[0];
+            valor = Convert.ToDecimal(data.Split('|')[1]);
+            if (tipo == "Litros")
+            {
+                Decimal preco = fetchPreco();
+                total = valor * preco;
+            }
+
+            return valor;
+        }
+
+        private decimal fetchPreco()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
