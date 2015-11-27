@@ -1,6 +1,6 @@
 ﻿namespace Caixa
 {
-    partial class Form1
+    partial class Caixa
     {
         /// <summary>
         /// Required designer variable.
@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabSettings = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.definePreco = new System.Windows.Forms.Button();
             this.precoGasolina = new System.Windows.Forms.TextBox();
@@ -45,15 +47,17 @@
             this.bomba2Paga = new System.Windows.Forms.Button();
             this.valorAbastecidoBomba2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.toolTipFechamento = new System.Windows.Forms.ToolTip(this.components);
+            this.bomba1 = new System.ComponentModel.BackgroundWorker();
+            this.bomba2 = new System.ComponentModel.BackgroundWorker();
+            this.fechamento = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabSettings.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabBomba1.SuspendLayout();
             this.tabBomba2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -64,20 +68,42 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(564, 278);
+            this.tabControl1.Size = new System.Drawing.Size(564, 331);
             this.tabControl1.TabIndex = 0;
             // 
             // tabSettings
             // 
-            this.tabSettings.Controls.Add(this.dataGridView1);
+            this.tabSettings.Controls.Add(this.groupBox2);
             this.tabSettings.Controls.Add(this.groupBox1);
             this.tabSettings.Location = new System.Drawing.Point(4, 22);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSettings.Size = new System.Drawing.Size(556, 252);
+            this.tabSettings.Size = new System.Drawing.Size(556, 305);
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "Configurações";
             this.tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.fechamento);
+            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Location = new System.Drawing.Point(6, 91);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(544, 208);
+            this.groupBox2.TabIndex = 3;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Fechamento";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 68);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(140, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Realizar Fechamento";
+            this.toolTipFechamento.SetToolTip(this.button1, "Realiza o fechamento das vendas do dia anterior");
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -99,6 +125,7 @@
             this.definePreco.TabIndex = 2;
             this.definePreco.Text = "&Define Preço";
             this.definePreco.UseVisualStyleBackColor = true;
+            this.definePreco.Click += new System.EventHandler(this.definePreco_Click);
             // 
             // precoGasolina
             // 
@@ -125,7 +152,7 @@
             this.tabBomba1.Location = new System.Drawing.Point(4, 22);
             this.tabBomba1.Name = "tabBomba1";
             this.tabBomba1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabBomba1.Size = new System.Drawing.Size(556, 252);
+            this.tabBomba1.Size = new System.Drawing.Size(556, 305);
             this.tabBomba1.TabIndex = 1;
             this.tabBomba1.Text = "Bomba 1";
             this.tabBomba1.UseVisualStyleBackColor = true;
@@ -134,7 +161,7 @@
             // 
             this.bomba1Cancelada.Location = new System.Drawing.Point(240, 158);
             this.bomba1Cancelada.Name = "bomba1Cancelada";
-            this.bomba1Cancelada.Size = new System.Drawing.Size(75, 23);
+            this.bomba1Cancelada.Size = new System.Drawing.Size(115, 23);
             this.bomba1Cancelada.TabIndex = 3;
             this.bomba1Cancelada.Text = "Venda Cancelada";
             this.bomba1Cancelada.UseVisualStyleBackColor = true;
@@ -145,8 +172,9 @@
             this.bomba1Paga.Name = "bomba1Paga";
             this.bomba1Paga.Size = new System.Drawing.Size(75, 23);
             this.bomba1Paga.TabIndex = 2;
-            this.bomba1Paga.Text = "OK";
+            this.bomba1Paga.Text = "Pago";
             this.bomba1Paga.UseVisualStyleBackColor = true;
+            this.bomba1Paga.Click += new System.EventHandler(this.bomba1Paga_Click);
             // 
             // valorAbastecidoBomba1
             // 
@@ -167,7 +195,6 @@
             this.label2.Size = new System.Drawing.Size(178, 29);
             this.label2.TabIndex = 0;
             this.label2.Text = "Abastecimento:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // tabBomba2
             // 
@@ -177,7 +204,7 @@
             this.tabBomba2.Controls.Add(this.label4);
             this.tabBomba2.Location = new System.Drawing.Point(4, 22);
             this.tabBomba2.Name = "tabBomba2";
-            this.tabBomba2.Size = new System.Drawing.Size(556, 252);
+            this.tabBomba2.Size = new System.Drawing.Size(556, 305);
             this.tabBomba2.TabIndex = 2;
             this.tabBomba2.Text = "Bomba 2";
             this.tabBomba2.UseVisualStyleBackColor = true;
@@ -186,7 +213,7 @@
             // 
             this.bomba2Cancelada.Location = new System.Drawing.Point(240, 158);
             this.bomba2Cancelada.Name = "bomba2Cancelada";
-            this.bomba2Cancelada.Size = new System.Drawing.Size(75, 23);
+            this.bomba2Cancelada.Size = new System.Drawing.Size(115, 23);
             this.bomba2Cancelada.TabIndex = 7;
             this.bomba2Cancelada.Text = "Venda Cancelada";
             this.bomba2Cancelada.UseVisualStyleBackColor = true;
@@ -197,7 +224,7 @@
             this.bomba2Paga.Name = "bomba2Paga";
             this.bomba2Paga.Size = new System.Drawing.Size(75, 23);
             this.bomba2Paga.TabIndex = 6;
-            this.bomba2Paga.Text = "OK";
+            this.bomba2Paga.Text = "Pago";
             this.bomba2Paga.UseVisualStyleBackColor = true;
             // 
             // valorAbastecidoBomba2
@@ -220,35 +247,52 @@
             this.label4.TabIndex = 4;
             this.label4.Text = "Abastecimento:";
             // 
-            // dataGridView1
+            // bomba1
             // 
-            this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.DataSource = this.bindingSource1;
-            this.dataGridView1.Location = new System.Drawing.Point(288, 91);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(240, 150);
-            this.dataGridView1.TabIndex = 1;
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.bomba1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba1_DoWork);
+            this.bomba1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bomba1_ProgressChanged);
             // 
-            // Form1
+            // bomba2
+            // 
+            this.bomba2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba2_DoWork);
+            // 
+            // fechamento
+            // 
+            this.fechamento.AutoSize = true;
+            this.fechamento.Location = new System.Drawing.Point(351, 78);
+            this.fechamento.Name = "fechamento";
+            this.fechamento.Size = new System.Drawing.Size(35, 13);
+            this.fechamento.TabIndex = 3;
+            this.fechamento.Text = "label3";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(192, 78);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(145, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Valor vendido no dia anterior:";
+            // 
+            // Caixa
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(588, 302);
+            this.ClientSize = new System.Drawing.Size(588, 352);
             this.Controls.Add(this.tabControl1);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Caixa";
+            this.Text = "Caixa";
+            this.Load += new System.EventHandler(this.Caixa_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabBomba1.ResumeLayout(false);
             this.tabBomba1.PerformLayout();
             this.tabBomba2.ResumeLayout(false);
             this.tabBomba2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -271,8 +315,13 @@
         private System.Windows.Forms.Button bomba2Paga;
         private System.Windows.Forms.Label valorAbastecidoBomba2;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.BindingSource bindingSource1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ToolTip toolTipFechamento;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label fechamento;
+        private System.ComponentModel.BackgroundWorker bomba1;
+        private System.ComponentModel.BackgroundWorker bomba2;
     }
 }
 
