@@ -32,6 +32,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.fechamento = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.definePreco = new System.Windows.Forms.Button();
@@ -50,14 +52,16 @@
             this.toolTipFechamento = new System.Windows.Forms.ToolTip(this.components);
             this.bomba1 = new System.ComponentModel.BackgroundWorker();
             this.bomba2 = new System.ComponentModel.BackgroundWorker();
-            this.fechamento = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.statusbar = new System.Windows.Forms.StatusStrip();
+            this.bomba1Status = new System.Windows.Forms.ToolStripStatusLabel();
+            this.bomba2Status = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl1.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabBomba1.SuspendLayout();
             this.tabBomba2.SuspendLayout();
+            this.statusbar.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -94,6 +98,24 @@
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Fechamento";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(192, 78);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(145, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Valor vendido no dia anterior:";
+            // 
+            // fechamento
+            // 
+            this.fechamento.AutoSize = true;
+            this.fechamento.Location = new System.Drawing.Point(351, 78);
+            this.fechamento.Name = "fechamento";
+            this.fechamento.Size = new System.Drawing.Size(35, 13);
+            this.fechamento.TabIndex = 3;
+            this.fechamento.Text = "label3";
             // 
             // button1
             // 
@@ -165,6 +187,7 @@
             this.bomba1Cancelada.TabIndex = 3;
             this.bomba1Cancelada.Text = "Venda Cancelada";
             this.bomba1Cancelada.UseVisualStyleBackColor = true;
+            this.bomba1Cancelada.Click += new System.EventHandler(this.bomba1Cancelada_Click);
             // 
             // bomba1Paga
             // 
@@ -217,6 +240,7 @@
             this.bomba2Cancelada.TabIndex = 7;
             this.bomba2Cancelada.Text = "Venda Cancelada";
             this.bomba2Cancelada.UseVisualStyleBackColor = true;
+            this.bomba2Cancelada.Click += new System.EventHandler(this.bomba2Cancelada_Click);
             // 
             // bomba2Paga
             // 
@@ -226,6 +250,7 @@
             this.bomba2Paga.TabIndex = 6;
             this.bomba2Paga.Text = "Pago";
             this.bomba2Paga.UseVisualStyleBackColor = true;
+            this.bomba2Paga.Click += new System.EventHandler(this.bomba2Paga_Click);
             // 
             // valorAbastecidoBomba2
             // 
@@ -256,29 +281,35 @@
             // 
             this.bomba2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bomba2_DoWork);
             // 
-            // fechamento
+            // statusbar
             // 
-            this.fechamento.AutoSize = true;
-            this.fechamento.Location = new System.Drawing.Point(351, 78);
-            this.fechamento.Name = "fechamento";
-            this.fechamento.Size = new System.Drawing.Size(35, 13);
-            this.fechamento.TabIndex = 3;
-            this.fechamento.Text = "label3";
+            this.statusbar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bomba1Status,
+            this.bomba2Status});
+            this.statusbar.Location = new System.Drawing.Point(0, 347);
+            this.statusbar.Name = "statusbar";
+            this.statusbar.Size = new System.Drawing.Size(588, 22);
+            this.statusbar.TabIndex = 1;
+            this.statusbar.Text = "statusStrip1";
             // 
-            // label3
+            // bomba1Status
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(192, 78);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(145, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Valor vendido no dia anterior:";
+            this.bomba1Status.Name = "bomba1Status";
+            this.bomba1Status.Size = new System.Drawing.Size(118, 17);
+            this.bomba1Status.Text = "toolStripStatusLabel1";
+            // 
+            // bomba2Status
+            // 
+            this.bomba2Status.Name = "bomba2Status";
+            this.bomba2Status.Size = new System.Drawing.Size(118, 17);
+            this.bomba2Status.Text = "toolStripStatusLabel1";
             // 
             // Caixa
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(588, 352);
+            this.ClientSize = new System.Drawing.Size(588, 369);
+            this.Controls.Add(this.statusbar);
             this.Controls.Add(this.tabControl1);
             this.Name = "Caixa";
             this.Text = "Caixa";
@@ -293,7 +324,10 @@
             this.tabBomba1.PerformLayout();
             this.tabBomba2.ResumeLayout(false);
             this.tabBomba2.PerformLayout();
+            this.statusbar.ResumeLayout(false);
+            this.statusbar.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -322,6 +356,9 @@
         private System.Windows.Forms.Label fechamento;
         private System.ComponentModel.BackgroundWorker bomba1;
         private System.ComponentModel.BackgroundWorker bomba2;
+        private System.Windows.Forms.StatusStrip statusbar;
+        private System.Windows.Forms.ToolStripStatusLabel bomba1Status;
+        private System.Windows.Forms.ToolStripStatusLabel bomba2Status;
     }
 }
 

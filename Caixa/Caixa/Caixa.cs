@@ -15,7 +15,8 @@ namespace Caixa
 {
     public partial class Caixa : Form
     {
-        public static ManualResetEvent allDone = new ManualResetEvent(false);
+        private StateObject sBomba1;
+        private StateObject sBomba2;
 
         private IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
         private IPAddress ipAddress;
@@ -55,6 +56,9 @@ namespace Caixa
             valorAbastecidoBomba2.Text = "";
             fechamento.Text = "Sem informações suficientes";
 
+            bomba1Status.Text = "Bomba 1 desconectada";
+            bomba2Status.Text = "Bomba 2 desconectada";
+
             bomba1.RunWorkerAsync();
             bomba2.RunWorkerAsync();
         }
@@ -67,27 +71,27 @@ namespace Caixa
                 ProtocolType.Tcp
             );
 
+            String data = null;
+
             listener.Bind(bomba1EndPoint);
             listener.Listen(1);
 
+            // Create the state object.
+            sBomba1 = new StateObject();
+            sBomba1.bomba = bomba1;
+            sBomba1.workSocket = listener;
+
             while (true)
             {
-                // Set the event to nonsignaled state.
-                allDone.Reset();
+                listener.Accept();
+                bomba1Status.Text = "Bomba 1 conectada";
 
-                // Create the state object.
-                StateObject state = new StateObject();
-                state.bomba = bomba1;
-                state.workSocket = listener;
-
-                // Start an asynchronous socket to listen for connections.
-                listener.BeginAccept(
-                    new AsyncCallback(AcceptCallback),
-                    state
-                );
-
-                // Wait until a connection is made before continuing.
-                allDone.WaitOne();
+                while (true)
+                {
+                    int bytesRec = listener.Receive(sBomba1.buffer);
+                    data += Encoding.ASCII.GetString(sBomba1.buffer, 0, bytesRec);
+                    bomba1.ReportProgress(1, sBomba1);
+                }
             }
         }
 
@@ -104,144 +108,63 @@ namespace Caixa
 
             while (true)
             {
-                // Set the event to nonsignaled state.
-                allDone.Reset();
-
                 // Create the state object.
-                StateObject state = new StateObject();
-                state.bomba = bomba1;
-                state.workSocket = listener;
+                sBomba2 = new StateObject();
+                sBomba2.bomba = bomba1;
+                sBomba2.workSocket = listener;
 
-                // Start an asynchronous socket to listen for connections.
-                listener.BeginAccept(
-                    new AsyncCallback(AcceptCallback),
-                    state
-                );
-
-                // Wait until a connection is made before continuing.
-                allDone.WaitOne();
+                listener.Accept();
+                bomba1Status.Text = "Bomba 2 conectada";
             }
         }
 
         private void bomba1Paga_Click(object sender, EventArgs e)
         {
-            valorAbastecidoBomba1.Text = "10";
             if (valorAbastecidoBomba1.Text.Length > 0)
             {
-                using (var context = new BombasContext())
-                {
-                    
-                    Venda qtdeLitros = new Venda();
-                    DateTime data = DateTime.Now;
-                    qtdeLitros.litros = Convert.ToDecimal(valorAbastecidoBomba1.Text);
-
-                    Preco preco = context.Precos.Where(p => p.data == data.ToShortDateString()).FirstOrDefault();
-                        //.Add(qtdeLitros);
-                    
-                    Bomba bomba = context.Bombas.Find(1);
-
-                    Venda venda = new Venda();
-                    venda.bomba = bomba;
-                    venda.preco = preco;
-
-                    context.Precos.Add(preco);
-                    context.Vendas.Add(venda);
-
-                    context.SaveChanges();
-                }
+                salvaVenda(valorAbastecidoBomba1.Text, 1);
+                Send(sBomba1.workSocket, "OK");
             }
         }
 
-        public void AcceptCallback(IAsyncResult ar)
+        private void bomba2Paga_Click(object sender, EventArgs e)
         {
-            // Signal the main thread to continue.
-            allDone.Set();
-
-            StateObject state = (StateObject)ar.AsyncState;
-
-            // Get the socket that handles the client request.
-            Socket listener = state.handler;
-            Socket handler = listener.EndAccept(ar);
-            state.workSocket = handler;
-
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
+            if (valorAbastecidoBomba2.Text.Length > 0)
+            {
+                salvaVenda(valorAbastecidoBomba2.Text, 2);
+                Send(sBomba2.workSocket, "OK");
+            }
         }
 
-        public void ReadCallback(IAsyncResult ar)
+        private void salvaVenda(string valor, int bombaId)
         {
-            String content = String.Empty;
-
-            // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-
-            // Read data from the client socket. 
-            int bytesRead = handler.EndReceive(ar);
-
-            if (bytesRead > 0)
+            using (var context = new BombasContext())
             {
-                // There  might be more data, so store the data received so far.
-                state.sb.Append(Encoding.ASCII.GetString(
-                    state.buffer, 0, bytesRead));
+                Preco preco = fetchPreco();
+                Bomba bomba = context.Bombas.Find(bombaId);
 
-                // Check for end-of-file tag. If it is not there, read 
-                // more data.
-                content = state.sb.ToString();
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the 
-                    // client. Display it on the console.
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                        content.Length, content);
-                    // Echo the data back to the client.
-                    state.bomba.ReportProgress(0, state);
-                }
-                else
-                {
-                    // Not all data received. Get more.
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
+                Venda venda = new Venda();
+                venda.bomba = bomba;
+                venda.preco = preco;
+                venda.litros = Convert.ToDecimal(valor) / preco.valor;
+
+                context.Vendas.Add(venda);
+
+                context.SaveChanges();
             }
         }
 
         private void Send(Socket handler, String data)
         {
-            // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] msg = Encoding.ASCII.GetBytes(data);
 
-            // Begin sending the data to the remote device.
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
-        }
-
-        private static void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the socket from the state object.
-                Socket handler = (Socket)ar.AsyncState;
-
-                // Complete sending the data to the remote device.
-                int bytesSent = handler.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            handler.Send(msg);
         }
 
         private void bomba1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             StateObject so = (StateObject)e.UserState;
-            valorAbastecidoBomba1.Text = so.sb.ToString();
+            valorAbastecidoBomba1.Text = Convert.ToString(valor(so.sb.ToString()));
         }
 
         private Decimal valor(String data)
@@ -252,16 +175,35 @@ namespace Caixa
             valor = Convert.ToDecimal(data.Split('|')[1]);
             if (tipo == "Litros")
             {
-                Decimal preco = fetchPreco();
-                total = valor * preco;
+                total = valor * fetchPreco().valor;
             }
 
             return valor;
         }
 
-        private decimal fetchPreco()
+        private Preco fetchPreco()
         {
-            throw new NotImplementedException();
+            Preco preco;
+
+            using (var context = new BombasContext())
+            {
+                DateTime data = DateTime.Now;
+                preco = context.Precos.Where(p => p.data == data.ToShortDateString()).FirstOrDefault();
+            }
+
+            return preco;
+        }
+
+        private void bomba1Cancelada_Click(object sender, EventArgs e)
+        {
+            valorAbastecidoBomba1.Text = "";
+            Send(sBomba1.workSocket, "NOK");
+        }
+
+        private void bomba2Cancelada_Click(object sender, EventArgs e)
+        {
+            valorAbastecidoBomba2.Text = "";
+            Send(sBomba1.workSocket, "NOK");
         }
     }
 }

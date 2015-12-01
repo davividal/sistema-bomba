@@ -23,6 +23,9 @@ namespace Bomba
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
+        // The response from the remote device.
+        private static String response = String.Empty;
+
         public Bomba()
         {
             InitializeComponent();
@@ -54,57 +57,36 @@ namespace Bomba
         {
             try
             {
-                IPHostEntry ipHostInfo = Dns.Resolve("localhost");
+                IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
                 IPAddress ipAddress = ipHostInfo.AddressList[0];
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
                 // Create a TCP/IP socket.
-                client = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Stream, ProtocolType.Tcp);
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                // Connect to the remote endpoint.
-                client.BeginConnect(remoteEP,
-                    new AsyncCallback(ConnectCallback), client);
-                connectDone.WaitOne();
+                client.Connect(remoteEP);
             }
-            catch (Exception error)
+            catch (Exception ge)
             {
                 backgroundWorker1.CancelAsync();
 
-                if (port++ == 11000) backgroundWorker1.RunWorkerAsync();
-            }
-        }
-
-        private void ConnectCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the socket from the state object.
-                client = (Socket)ar.AsyncState;
-
-                // Complete the connection.
-                client.EndConnect(ar);
-
-                Console.WriteLine("Socket connected to {0}",
-                    client.RemoteEndPoint.ToString());
-
-                // Signal that the connection has been made.
-                connectDone.Set();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                if (port++ == 11000)
+                {
+                    backgroundWorker1.RunWorkerAsync();
+                }
+                else
+                {
+                    throw ge;
+                }
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            String data = String.Format("{0}|{1}", tipoVenda, valor);
-            Send(client, valor.Text);
-            sendDone.WaitOne();
+            String data = String.Format("{0}|{1}", tipoVenda.Text, valor.Text);
+            Send(client, data);
 
             Receive(client);
-            receiveDone.WaitOne();
         }
 
         private void Send(Socket client, String data)
@@ -112,31 +94,8 @@ namespace Bomba
             // Convert the string data to byte data using ASCII encoding.
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
-            // Begin sending the data to the remote device.
-            client.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), client);
+            client.Send(byteData);
         }
-
-        private void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the socket from the state object.
-                Socket client = (Socket)ar.AsyncState;
-
-                // Complete sending the data to the remote device.
-                int bytesSent = client.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
-
-                // Signal that all bytes have been sent.
-                sendDone.Set();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
 
         private void Receive(Socket client)
         {
@@ -146,46 +105,21 @@ namespace Bomba
                 StateObject state = new StateObject();
                 state.workSocket = client;
 
-                // Begin receiving the data from the remote device.
-                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReceiveCallback), state);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
+                client.Receive(state.buffer);
 
-        private void ReceiveCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the state object and the client socket 
-                // from the asynchronous state object.
-                StateObject state = (StateObject)ar.AsyncState;
-                Socket client = state.workSocket;
-
-                // Read data from the remote device.
-                int bytesRead = client.EndReceive(ar);
-
-                if (bytesRead > 0)
+                // All the data has arrived; put it in response.
+                if (state.sb.Length > 1)
                 {
-                    // There might be more data, so store the data received so far.
-                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+                    response = state.sb.ToString();
+                }
 
-                    // Get the rest of the data.
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                        new AsyncCallback(ReceiveCallback), state);
+                if (response == "OK")
+                {
+                    MessageBox.Show("Venda concluída", "Concluída", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    // All the data has arrived; put it in response.
-                    if (state.sb.Length > 1)
-                    {
-                        response = state.sb.ToString();
-                    }
-                    // Signal that all bytes have been received.
-                    receiveDone.Set();
+                    MessageBox.Show("Venda cancelada", "Cancelada", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 }
             }
             catch (Exception e)
